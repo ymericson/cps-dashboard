@@ -40,6 +40,36 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .attr("d", d3.geoPath().projection(projection))
     .style("stroke", "black")
     .style("opacity", .3)
+
+  var Tooltip = d3.select(".container-fluid")
+    .append("svg")
+    .attr("class", "tooltip")
+
+  // actions for when hovering over a circle
+  var mouseover = function(event, d) {
+    d3.select(this)
+      .style("stroke", "red")
+      .attr("stroke-width", 3)
+  }
+  var mousemove = function(event, d) {
+    Tooltip
+      .style("opacity", 0.9)
+      .html("<p>School: " + d.school_name_long + "</p>")
+      .style("left", (event.clientX + 30) + "px")
+      .style("top", (event.clientY - 50) + "px")
+  }
+  var mouseleave = function(d) {
+    Tooltip
+      .style("opacity", 0)
+    d3.select(this)
+      .style("stroke", "green")
+      .attr("stroke-width", 1)
+      .style("opacity", 0.8)
+      .transition()		
+      .duration(500)
+  }
+
+
   // cps dots
   svg
   .selectAll("myCircles")
@@ -50,10 +80,12 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     .attr("cy", function(d){ return projection([d.longitude, d.latitude])[1] })
     .attr("r", 10)
     .style("fill", "69b3a2")
-    .attr("stroke", "#69b3a2")
+    .attr("stroke", "green")
     .attr("stroke-width", 1)
-    .attr("fill-opacity", .4)
-    
+    .attr("fill-opacity", .4) 
+  .on("mouseover", mouseover)
+  .on('mousemove', mousemove)
+  .on("mouseleave", mouseleave)
 })
 
 
