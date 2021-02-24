@@ -5,10 +5,37 @@ a {
 
 html,
 body {
-  background: #D6D6CE;
-  font-family: Verdana, Geneva, sans-serif;
+  background: #F8F9FA;
+  font-family: 'calibri';
   height: 100%;
   margin: 0;
   padding: 0;
   width: 100%;
+  display: block;
+}
+
+* {
+  border: thin solid black;
+}
+
+head {
+  display: none;
+}
+
+.container-fluid {
+  padding-right: 10%;
+  padding-left: 10%;
+  max-width: 800px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+div {
+  display: block;
+}
+
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
 }

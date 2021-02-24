@@ -27,6 +27,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "d3": "^6.5.0",
     "d3-selection": "^2.0.0"
   },
   "scripts": {
