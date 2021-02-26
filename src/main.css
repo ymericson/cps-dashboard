@@ -23,8 +23,8 @@ head {
 }
 
 .container-fluid {
-  padding-right: 10%;
-  padding-left: 10%;
+  padding-right: 5%;
+  padding-left: 5%;
   max-width: 800px;
   margin-right: auto;
   margin-left: auto;
@@ -55,6 +55,10 @@ svg {
   opacity: 0.3;
 }
 
+.right-sidebar {
+  width: 300px;
+  height: 800px;
+}
 
 .tooltip {	
   position: absolute;			
@@ -66,22 +70,36 @@ svg {
   pointer-events: none;	
   border: solid;
   border-width: 2px;
-  transform: translate(0, 150%);
+  transform: translate(0, 10%);
 }
 
-.tooltip2 {
-  position: absolute;
-  top: 80px;
-  right: 0;
-  width: 200px;
-  height: 100px;
-  border: 3px solid #73AD21;
+.lower-tooltip {
+  opacity: 1;
+  width: 100%;
+  height: 300px;
 
+}
+
+#ethn-bar {
+  opacity: 1;
+  fill: steelblue;
+  height: 30px;
+}
+
+.svg-tooltip {
+  height: 480px;
+}
+
+#tooltipTitle {
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
 }
 
 .map {
   display: block;
-  margin-left: auto;
+  height: 850px;
+  /* margin-left: auto; */
   /* margin-right: auto  */
 }
 

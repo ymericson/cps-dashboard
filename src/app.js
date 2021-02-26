@@ -69,15 +69,16 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     .domain([48, 4500])
     .range([ 5, 30]) 
 
-  var Tooltip = d3.select(".container-fluid")
+  var Tooltip = d3.select(".right-sidebar")
     .append("svg")
     .attr("class", "svg-tooltip")
     .append("foreignObject")
     .attr("class", "tooltip");
 
-    var Tooltip2 = d3.select("body")
-    .append("svg")
-    .attr('class', 'tooltip2')
+  var lowerTooltip = d3.select('.right-sidebar')
+    .append('svg')
+    .attr("class", "lower-tooltip")
+
   
 
   // map background
@@ -137,7 +138,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 
 
 
-  // ---------------- MOUSE ACTION ---------------- //
+  // ---------------- SCHOOL INFO SIDEBAR ---------------- //
   var mouseover = function(event, d) {
     Tooltip
       .style("opacity", 1)
@@ -153,19 +154,53 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
             "Asian: " + d.asian_perc  + "<br/>" +
             "Other: " + d.other_perc
             )
-            
+    
+
+    // ---------------- ETHNICITY BAR GRAPH ---------------- //
+    lowerTooltip.append('text').attr('id', 'tooltipTitle')
+      .text(" Ethnicity Breakdown")
+      .attr('y', 30)
+
+    var ethnArray = {"hisp_perc": 'Hisp', "black_perc": 'Black',
+     "white_perc": 'White', "asian_perc": 'Asian', "other_perc": 'Other'};
+    let y = 50
+    for (var ethn in ethnArray){
+
+      lowerTooltip
+        .append("rect")
+        .attr('id', 'ethn-bar')
+        .attr("y", y)
+        .attr("width", 0)
+        .transition()
+        .duration(500)
+        .attr("width", 2 * parseInt(d[ethn].replace("%","")))
+      
+      lowerTooltip
+        .append("text")
+        .text(ethnArray[ethn] + ": " + d[ethn])
+        .attr("x", 10)
+        .attr("y", y + 20)
+        .transition()
+        .duration(500)
+        .attr("x", 10 + 2 * parseInt(d[ethn].replace("%","")));  
+
+      y += 40;
+
+  }
+
     d3.select(this)
       .style("stroke", "red")
       .attr("stroke-width", 3)
       .style("opacity", 0.8)
-
-      // tool_tip.show();
-
-
   }
+
   var mouseleave = function(d) {
     Tooltip
       .style("opacity", 0.1)
+    lowerTooltip
+      .selectAll('rect').remove()
+    lowerTooltip
+      .selectAll('text').remove()
     d3.select(this)
       .style("stroke", "#5e5e5e")
       .attr("stroke-width", 1)
