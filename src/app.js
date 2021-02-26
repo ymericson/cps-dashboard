@@ -20,8 +20,6 @@ var svg = d3.select(".container-fluid")
         .attr("width", width + (2 * margin.side))
         .attr("height", height + margin.top + margin.bottom);
 
-
-
 // ---------------- LEGEND COLOR BAR ---------------- //
 var colorscale = d3.schemeRdYlBu['6'];
 var color = d3.scaleQuantize()
@@ -41,7 +39,7 @@ function drawColorScale() {
     .attr('x', function(d, i) { return i * 40; })
     .attr('y', 750);
 
-  var texts = pallete.selectAll("all")
+  pallete.selectAll("all")
     .data(color.range())
     .enter()
     .append("text")
@@ -58,7 +56,9 @@ function drawColorScale() {
 //Load in GeoJSON data
 d3.json("./data/chicago_map.geojson").then(function(data) {
   // filter out O'Hare
-  data.features = data.features.filter( function(d){return d.properties.community!="OHARE"} )
+  data.features = data.features.filter(function(d){
+    return d.properties.community!="OHARE"
+  })
   // console.log(data)
   projection.fitSize([width,height],data); 
 
@@ -71,8 +71,14 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 
   var Tooltip = d3.select(".container-fluid")
     .append("svg")
+    .attr("class", "svg-tooltip")
     .append("foreignObject")
-    .attr("class", "tooltip")
+    .attr("class", "tooltip");
+
+    var Tooltip2 = d3.select("body")
+    .append("svg")
+    .attr('class', 'tooltip2')
+  
 
   // map background
   svg.append("g")
@@ -139,13 +145,23 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
             "School Type: " + d.school_type + "<br/>" +
             "Address: " + d.address + "<br/>" +
             "Phone #: " + d.phone  + "<br/>" +
-            "Enrollment: " + d.enrollment  + "<br/>" +
-            "2020 Grad Rate: " + d["2020"]
+            "Enrollment: " + d.enrollment  + "<br>" +
+            "2020 Grad Rate: " + d["2020"]  + "<br><br>" +
+            "Hispanic: " + d.hisp_perc  + "<br>" +
+            "White: " + d.white_perc  + "<br/>" +
+            "Black: " + d.black_perc  + "<br/>" +
+            "Asian: " + d.asian_perc  + "<br/>" +
+            "Other: " + d.other_perc
             )
+            
     d3.select(this)
       .style("stroke", "red")
       .attr("stroke-width", 3)
       .style("opacity", 0.8)
+
+      // tool_tip.show();
+
+
   }
   var mouseleave = function(d) {
     Tooltip
@@ -158,9 +174,6 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .duration(500)
   }
 
-  
-
-
   // cps dots
   svg
   .selectAll("circles")
@@ -172,34 +185,22 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     .attr("cx", function(d){ return projection([d.longitude, d.latitude])[0] })
     .attr("cy", function(d){ return projection([d.longitude, d.latitude])[1] })
     .attr("r", function(d){ return size(d.enrollment) })
-    .attr("fill", function(d){ return myColor(d["2020"]) })
+    .attr("fill", function(d){ return myColor(d["2019"]) })
     .attr("stroke", "#5e5e5e")
     .attr("opacity", 0.8)
   .on("mouseover", mouseover)
   .on("mouseleave", mouseleave)
+
   
-
-
-
-  // This function is gonna change the opacity and size of selected and unselected circles
   function update(){
-
-    // For each check box:
+    // For each check box
     d3.selectAll(".checkbox").each(function(d){
       var value = d3.select(this).property('value')
       var checked = d3.select(this).property('checked')
-      console.log(value)
-      console.log(checked)
 
-      // cb = d3.select(this);
-      // grp = cb.property("value")
-
-      // If the box is check, I show the group
       if(checked){
-        svg.selectAll("."+value).transition().duration(500).style("opacity", 1)
+        svg.selectAll("."+value).transition().duration(500).style("opacity", 0.8)
         .attr("r", function(d){ return size(d.enrollment) })
-
-      // Otherwise I hide it
       }else{
         svg.selectAll("."+value).transition().duration(500).style("opacity", 0)
         .attr("r", 0)
@@ -207,10 +208,8 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     })
   }
 
-  // When a button change, I run the update function
   d3.selectAll(".checkbox").on("change",update);
 
-  // And I initialize it at the beginning
   update()
 
 
