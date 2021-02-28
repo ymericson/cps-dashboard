@@ -1,11 +1,8 @@
 import {myExampleUtil} from './utils';
 import {select} from 'd3-selection';
 import * as d3 from 'd3';
-// import {legend} from "@d3/color-legend"
 import cps from '../data/cps.json';
 import './main.css';
-
-// console.log(cps)
 
 var margin = {top: 50, bottom: 30, side: 30},
     [height, width] = [800, 500];
@@ -20,54 +17,26 @@ var svg = d3.select(".container-fluid")
         .attr("width", width + (2 * margin.side))
         .attr("height", height + margin.top + margin.bottom);
 
-// ---------------- LEGEND COLOR BAR ---------------- //
-var colorscale = d3.schemeRdYlBu['6'];
-var color = d3.scaleQuantize()
-  .domain([40, 100])
-  .range(colorscale);
 
-drawColorScale();
-
-function drawColorScale() {
-  var pallete = svg.append('g')
-    .attr('id', 'pallete');
-
-  var swatch = pallete.selectAll('rect').data(colorscale);
-  swatch.enter().append('rect')
-    .attr('id', 'legend-rect')
-    .attr('fill', function(d) { return d; })
-    .attr('x', function(d, i) { return i * 40; })
-    .attr('y', 750);
-
-  pallete.selectAll("all")
-    .data(color.range())
-    .enter()
-    .append("text")
-    .attr('id', 'legend-text')
-    .attr("y", 775)
-    .attr('x', function(d, i) { return i * 40 + 20 })
-    .text(function(d) { return color.invertExtent(d)[0] })
-    .append("tspan").text(" - ").append("tspan")
-    .text(function(d) { return color.invertExtent(d)[1] - 1 })
-
-}
 
 
 //Load in GeoJSON data
 d3.json("./data/chicago_map.geojson").then(function(data) {
   // filter out O'Hare
-  data.features = data.features.filter(function(d){
-    return d.properties.community!="OHARE"
+  data.features = data.features.filter(function(d){ 
+    return d.properties.community!="OHARE" 
   })
-  // console.log(data)
   projection.fitSize([width,height],data); 
 
-  var myColor = d3.scaleSequential().domain([40,100])
-    .interpolator(d3.interpolateRdYlBu);
+  var steps = 6
+  //Discrete sequential scale
+  var color_threshold = d3.scaleThreshold()
+    .domain(d3.range(50, 100, 10) ) // [50, 60, 70, 80, 90, 100]
+    .range(d3.schemeRdYlBu[steps]);
 
   var size = d3.scaleLinear()
-    .domain([48, 4500])
-    .range([ 5, 30]) 
+    .domain([40, 4500])
+    .range([ 6, 30]) 
 
   var Tooltip = d3.select(".right-sidebar")
     .append("svg")
@@ -75,11 +44,13 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     .append("foreignObject")
     .attr("class", "tooltip");
 
-  var lowerTooltip = d3.select('.right-sidebar')
+  var gradRateTooltip = d3.select('.right-sidebar')
     .append('svg')
     .attr("class", "lower-tooltip")
 
-  
+  var lowerTooltip = d3.select('.right-sidebar')
+    .append('svg')
+    .attr("class", "lower-tooltip")
 
   // map background
   svg.append("g")
@@ -91,13 +62,57 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .attr("d", d3.geoPath().projection(projection))
 
 
+  // ---------------- GRADUATION LEGEND ---------------- //
+  var colorscale = d3.schemeRdYlBu['6'];
+  var color = d3.scaleQuantize()
+    .domain([40, 100])
+    .range(colorscale);
 
+  svg
+    .append("text")
+      .attr('x', 10)
+      .attr('y', 738)
+      .text("Graduation Rate")
+      .attr('alignment-baseline', 'middle')
 
-  // ---------------- LEGEND CIRCLE ---------------- //
+  drawColorScale();
+
+  function drawColorScale() {
+    var pallete = svg.append('g')
+      .attr('id', 'pallete');
+
+    var swatch = pallete.selectAll('rect').data(colorscale);
+    swatch.enter().append('rect')
+      .attr('id', 'legend-rect')
+      .attr('fill', function(d) { return d; })
+      .attr('x', function(d, i) { return i * 40; })
+      .attr('y', 750);
+
+    pallete.selectAll("all")
+      .data(color.range())
+      .enter()
+      .append("text")
+      .attr('id', 'legend-text')
+      .attr("y", 775)
+      .attr('x', function(d, i) { return i * 40 + 20 })
+      .text(function(d) { return color.invertExtent(d)[0] })
+      .append("tspan").text(" - ").append("tspan")
+      .text(function(d) { return color.invertExtent(d)[1] - 1 })
+
+  }
+
+  // ---------------- ENROLLMENT LEGEND ---------------- //
   var valuesToShow = [500, 2000, 5000],
-      xCircle = 60,
+      xCircle = 50,
       xLabel = 110,
       yCircle = 700
+    
+  svg
+    .append("text")
+      .attr('x', 18)
+      .attr('y', 625)
+      .text("Enrollment")
+      .attr('alignment-baseline', 'middle')
 
   // legend circles
   svg
@@ -147,25 +162,82 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
             "Address: " + d.address + "<br/>" +
             "Phone #: " + d.phone  + "<br/>" +
             "Enrollment: " + d.enrollment  + "<br>" +
-            "2020 Grad Rate: " + d["2020"]  + "<br><br>" +
-            "Hispanic: " + d.hisp_perc  + "<br>" +
-            "White: " + d.white_perc  + "<br/>" +
-            "Black: " + d.black_perc  + "<br/>" +
-            "Asian: " + d.asian_perc  + "<br/>" +
-            "Other: " + d.other_perc
+            "2020 Grad Rate: " + d["2020"]  + "%"
             )
-    
+  
+    gradRateTooltip.append('text').attr('id', 'tooltipTitle')
+      .text(" Graduation Trends")
+      .attr('y', 30)
+      var width = 270, height = 320;
+
+      var svg = d3.select(".lower-tooltip")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+      svg.append("g")
+        .attr("transform", "translate(30, 50)")
+        .call(d3.axisLeft()
+        .scale(d3.scaleLinear()
+          .domain([0, 100])
+          .range([height/2, 0])));
+
+      svg.append("g")
+        .attr("transform", "translate(30, " + (height/2 + 50)  +")")
+        .call(d3.axisBottom()
+          .scale(d3.scaleLinear()
+            .domain([2001, 2020])
+            .range([0, width - 40]))
+          .tickFormat(d3.format("d")))
+        .selectAll("text")	
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", "rotate(-65)");
+
+      for (let year = 2018; year <= 2020; year++) {
+        console.log(year)
+        console.log(d[year])
+        svg.append("path")
+        .datum(d)
+        .attr("d", d3.line()
+          .x(function(d) { return x(year) })
+          .y(function(d) { return y(d[year]) })
+          )
+      }
+
+            // console.log(d)
+      // svg.append("path")
+      // .datum(data)
+      // .attr("fill", "none")
+      // .attr("stroke", "steelblue")
+      // .attr("stroke-width", 1.5)
+      // .attr("d", d3.line()
+      //   .x(function(d) { return x(d.graduation.year) })
+      //   .y(function(d) { return y(d.graduation.gradRate) })
+      //   )
+
+      // svg.append("path")
+      //   .data(d)
+      //   .attr("class", "line")
+      //   .attr("d", d3.line()
+      //     .x(function(d) { return x(d.graduation.year) })
+      //     .y(function(d) { return y(d.graduation.gradRate) })
+      //     )
+        
+
+
+
+
 
     // ---------------- ETHNICITY BAR GRAPH ---------------- //
     lowerTooltip.append('text').attr('id', 'tooltipTitle')
       .text(" Ethnicity Breakdown")
       .attr('y', 30)
-
     var ethnArray = {"hisp_perc": 'Hisp', "black_perc": 'Black',
      "white_perc": 'White', "asian_perc": 'Asian', "other_perc": 'Other'};
     let y = 50
     for (var ethn in ethnArray){
-
       lowerTooltip
         .append("rect")
         .attr('id', 'ethn-bar')
@@ -174,7 +246,6 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
         .transition()
         .duration(500)
         .attr("width", 2 * parseInt(d[ethn].replace("%","")))
-      
       lowerTooltip
         .append("text")
         .text(ethnArray[ethn] + ": " + d[ethn])
@@ -183,28 +254,25 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
         .transition()
         .duration(500)
         .attr("x", 10 + 2 * parseInt(d[ethn].replace("%","")));  
-
       y += 40;
-
-  }
-
+    }
     d3.select(this)
-      .style("stroke", "red")
-      .attr("stroke-width", 3)
+      .style("stroke", "grey")
+      .attr("stroke-width", 2)
       .style("opacity", 0.8)
   }
 
+
   var mouseleave = function(d) {
-    Tooltip
-      .style("opacity", 0.1)
-    lowerTooltip
-      .selectAll('rect').remove()
-    lowerTooltip
-      .selectAll('text').remove()
+    Tooltip.style("opacity", 0.1)
+    gradRateTooltip.selectAll('text').remove()
+    gradRateTooltip.selectAll('svg').remove()
+    lowerTooltip.selectAll('rect').remove()
+    lowerTooltip.selectAll('text').remove()
     d3.select(this)
       .style("stroke", "#5e5e5e")
       .attr("stroke-width", 1)
-      .style("opacity", 0.8)
+      .style("opacity", 0.7)
       .transition()		
       .duration(500)
   }
@@ -220,9 +288,9 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     .attr("cx", function(d){ return projection([d.longitude, d.latitude])[0] })
     .attr("cy", function(d){ return projection([d.longitude, d.latitude])[1] })
     .attr("r", function(d){ return size(d.enrollment) })
-    .attr("fill", function(d){ return myColor(d["2019"]) })
+    .attr("fill", function(d){ return color_threshold(d["2020"]) })
     .attr("stroke", "#5e5e5e")
-    .attr("opacity", 0.8)
+    .attr("opacity", 0.7)
   .on("mouseover", mouseover)
   .on("mouseleave", mouseleave)
 
@@ -234,7 +302,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       var checked = d3.select(this).property('checked')
 
       if(checked){
-        svg.selectAll("."+value).transition().duration(500).style("opacity", 0.8)
+        svg.selectAll("."+value).transition().duration(500).style("opacity", 0.7)
         .attr("r", function(d){ return size(d.enrollment) })
       }else{
         svg.selectAll("."+value).transition().duration(500).style("opacity", 0)
@@ -251,26 +319,3 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 })
 
 
-// color scales
-// https://github.com/d3/d3-scale-chromatic
-// https://www.d3-graph-gallery.com/graph/custom_color.html
-// https://observablehq.com/@d3/color-legend
-
-// // this is just one example of how to import data. there are lots of ways to do it!
-// fetch('./data/example.json')
-//   .then(response => response.json())
-//   .then(data => myVis(data))
-//   .catch(e => {
-//     console.log(e);
-//   });
-
-// function myVis(data) {
-//   const width = 5000;
-//   const height = (36 / 24) * width;
-//   console.log(data, height);
-//   console.log('Hi!');
-//   // EXAMPLE FIRST FUNCTION
-//   select('#app')
-//     .append('h1')
-//     .text('hi!');
-// }
