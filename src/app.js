@@ -1,8 +1,11 @@
 import {myExampleUtil} from './utils';
 import {select} from 'd3-selection';
 import * as d3 from 'd3';
+import {scaleLinear, scaleTime} from 'd3-scale'
+import {extent} from 'd3-array';
 import cps from '../data/cps.json';
 import './main.css';
+import { area } from 'd3';
 
 var margin = {top: 50, bottom: 30, side: 30},
     [height, width] = [800, 500];
@@ -188,14 +191,18 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
           .attr('class', 'grad-graph')
           .attr("width", width)
           .attr("height", height);
-
+      // y axis - perc
       svg.append("g")
         .attr("transform", "translate(30, 50)")
         .call(d3.axisLeft()
-        .scale(d3.scaleLinear()
-          .domain([0, 100])
-          .range([height/2, 0])));
-
+          .tickSize(0)
+          .ticks(5)
+          .scale(d3.scaleLinear()
+            .domain([0, 100])
+            .range([height/2, 0]))
+          .tickFormat(d => d + "%")
+        );
+      // x axis - year
       svg.append("g")
         .attr("transform", "translate(30, " + (height/2 + 50)  +")")
         .call(d3.axisBottom()
@@ -208,19 +215,28 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
           .attr("dx", "-.8em")
           .attr("dy", ".15em")
           .attr("transform", "rotate(-65)");
+      // line 
+      // const xScale = scaleTime()
+      //   .domain([2001, 2020])
+      //   .range([0, width])
+      // const yScale = scaleLinear()
+      //   .domain([0, 100])
+      //   .range([height/2, 0])
+      // const areaScale = area()
+      //   .x(d => xScale(new Date(d.year)))
+      //   .y0(yScale(yScale.domain()[0]))
+      //   .y1(d => yScale(d['perc']))
 
-
-      console.log(d.metric)
+      console.log([d.metric])
       svg
-      // .select('.grad-graph')
-      .append("path")
-      .attr("class", "line")
-      .data(d.metric)      
-      .attr("d", d3.line()
-        .x(function(d) { return x(d.year) })
-        .y(function(d) { return y(d.perc) })
-        )
-      
+        // .select('.grad-graph')
+        .append("path")
+        .attr("class", "line")
+        .data(d.metric)      
+        .attr("d", d3.line()
+          .x(function(d) { return x(d.year) })
+          .y(function(d) { return y(d.perc) })
+          )
 
 
 
