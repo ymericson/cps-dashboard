@@ -19,13 +19,26 @@ var svg = d3.select(".container-fluid")
 
 
 
-
 //Load in GeoJSON data
 d3.json("./data/chicago_map.geojson").then(function(data) {
   // filter out O'Hare
   data.features = data.features.filter(function(d){ 
     return d.properties.community!="OHARE" 
   })
+  // add graduation year and rate into metrics group
+  for (var i=0, l=cps.length; i<l; i++) {
+    for (const [year, perc] of Object.entries(cps[i])) {
+      // Get the year as a number
+      const yearValue = +year; // See note below
+      if (yearValue >= 2008 && yearValue <= 2020) {
+          // It's in range, get or create the `metric` array
+          const metric = cps[i].metric || (cps[i].metric = []);
+          // Add to it
+          metric.push({year, perc});
+      } 
+    }
+  }
+
   projection.fitSize([width,height],data); 
 
   var steps = 6
@@ -172,6 +185,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 
       var svg = d3.select(".lower-tooltip")
           .append("svg")
+          .attr('class', 'grad-graph')
           .attr("width", width)
           .attr("height", height);
 
@@ -187,7 +201,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
         .call(d3.axisBottom()
           .scale(d3.scaleLinear()
             .domain([2001, 2020])
-            .range([0, width - 40]))
+            .range([0, width - 38]))
           .tickFormat(d3.format("d")))
         .selectAll("text")	
           .style("text-anchor", "end")
@@ -195,38 +209,18 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
           .attr("dy", ".15em")
           .attr("transform", "rotate(-65)");
 
-      for (let year = 2018; year <= 2020; year++) {
-        console.log(year)
-        console.log(d[year])
-        svg.append("path")
-        .datum(d)
-        .attr("d", d3.line()
-          .x(function(d) { return x(year) })
-          .y(function(d) { return y(d[year]) })
-          )
-      }
 
-            // console.log(d)
-      // svg.append("path")
-      // .datum(data)
-      // .attr("fill", "none")
-      // .attr("stroke", "steelblue")
-      // .attr("stroke-width", 1.5)
-      // .attr("d", d3.line()
-      //   .x(function(d) { return x(d.graduation.year) })
-      //   .y(function(d) { return y(d.graduation.gradRate) })
-      //   )
-
-      // svg.append("path")
-      //   .data(d)
-      //   .attr("class", "line")
-      //   .attr("d", d3.line()
-      //     .x(function(d) { return x(d.graduation.year) })
-      //     .y(function(d) { return y(d.graduation.gradRate) })
-      //     )
-        
-
-
+      console.log(d.metric)
+      svg
+      // .select('.grad-graph')
+      .append("path")
+      .attr("class", "line")
+      .data(d.metric)      
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.year) })
+        .y(function(d) { return y(d.perc) })
+        )
+      
 
 
 
@@ -265,8 +259,8 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 
   var mouseleave = function(d) {
     Tooltip.style("opacity", 0.1)
-    gradRateTooltip.selectAll('text').remove()
-    gradRateTooltip.selectAll('svg').remove()
+    // gradRateTooltip.selectAll('text').remove()
+    // gradRateTooltip.selectAll('svg').remove()
     lowerTooltip.selectAll('rect').remove()
     lowerTooltip.selectAll('text').remove()
     d3.select(this)

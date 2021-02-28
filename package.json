@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "d3": "^6.5.0",
+    "d3-fetch": "^2.0.0",
     "d3-selection": "^2.0.0",
     "d3-svg-legend": "^2.25.6"
   },
