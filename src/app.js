@@ -7,8 +7,9 @@ import cps from '../data/cps.json';
 import './main.css';
 import { area } from 'd3';
 
-var margin = {top: 50, bottom: 30, side: 30},
-    [height, width] = [800, 500];
+var margin = {top: 50, bottom: 30, side: 30};
+var height = 800
+var width = 500;
 
 var projection = d3.geoMercator();
 // var path = d3.geoPath().projection(projection);
@@ -33,7 +34,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     for (const [year, perc] of Object.entries(cps[i])) {
       // Get the year as a number
       const yearValue = +year; // See note below
-      if (yearValue >= 2008 && yearValue <= 2020) {
+      if (yearValue >= 2001 && yearValue <= 2020) {
           // It's in range, get or create the `metric` array
           const metric = cps[i].metric || (cps[i].metric = []);
           // Add to it
@@ -118,10 +119,10 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
   }
 
   // ---------------- ENROLLMENT LEGEND ---------------- //
-  var valuesToShow = [500, 2000, 5000],
-      xCircle = 50,
-      xLabel = 110,
-      yCircle = 700
+  var valuesToShow = [500, 2000, 5000];
+  var xCircle = 50;
+  var xLabel = 110;
+  var yCircle = 700;
     
   svg
     .append("text")
@@ -176,7 +177,9 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .html("<h3>" + d.school_name_long + "</h3>" +
             "School Type: " + d.school_type + "<br/>" +
             "Address: " + d.address + "<br/>" +
+            "Zip code: " + d.zip + "<br/>" +
             "Phone #: " + d.phone  + "<br/>" +
+            "website: " + d.website + "<br/>" +
             "Enrollment: " + d.enrollment  + "<br>" +
             "2020 Grad Rate: " + d["2020"]  + "%"
             )
@@ -205,7 +208,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       // x axis - year
       svg.append("g")
         .attr("transform", "translate(30, " + (height/2 + 50)  +")")
-        .call(d3.axisBottom()
+        .call(d3.axisBottom(xScale)
           .scale(d3.scaleLinear()
             .domain([2001, 2020])
             .range([0, width - 38]))
@@ -216,12 +219,12 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
           .attr("dy", ".15em")
           .attr("transform", "rotate(-65)");
       // line 
-      // const xScale = scaleTime()
-      //   .domain([2001, 2020])
-      //   .range([0, width])
-      // const yScale = scaleLinear()
-      //   .domain([0, 100])
-      //   .range([height/2, 0])
+      const xScale = scaleTime()
+        .domain([2001, 2020])
+        .range([0,  width - 38])
+       const yScale = scaleLinear()
+         .domain([0, 100])
+         .range([height/2, 0])
       // const areaScale = area()
       //   .x(d => xScale(new Date(d.year)))
       //   .y0(yScale(yScale.domain()[0]))
@@ -229,15 +232,18 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 
       console.log([d.metric])
       svg
-        // .select('.grad-graph')
-        .append("path")
-        .attr("class", "line")
-        .data(d.metric)      
+        .selectAll('.grad-line')
+        //.append("path")
+        .data([d.metric.filter(x => x.perc)])
+        .join('path')
+        .attr("transform", "translate(30, 50)")  
+        .attr("class", "grad-line")
         .attr("d", d3.line()
-          .x(function(d) { return x(d.year) })
-          .y(function(d) { return y(d.perc) })
-          )
-
+          .x(function(d) { return xScale(d.year) })
+          .y(function(d) { return yScale(d.perc) }))
+        .attr('stroke', 'black')
+        .attr('fill', 'none')
+      // svg.selectAll("path").attr("fill", "none");
 
 
     // ---------------- ETHNICITY BAR GRAPH ---------------- //
@@ -274,9 +280,9 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
 
 
   var mouseleave = function(d) {
-    Tooltip.style("opacity", 0.1)
-    // gradRateTooltip.selectAll('text').remove()
-    // gradRateTooltip.selectAll('svg').remove()
+    Tooltip.style("opacity", 0)
+    gradRateTooltip.selectAll('text').remove()
+    gradRateTooltip.selectAll('svg').remove()
     lowerTooltip.selectAll('rect').remove()
     lowerTooltip.selectAll('text').remove()
     d3.select(this)
