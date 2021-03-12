@@ -5,6 +5,7 @@ import {scaleLinear, scaleTime} from 'd3-scale'
 import {extent} from 'd3-array';
 import cps from '../data/cps.json';
 import './main.css';
+
 import { area } from 'd3';
 
 var margin = {top: 50, bottom: 30, side: 30};
@@ -12,7 +13,6 @@ var height = 800
 var width = 500;
 
 var projection = d3.geoMercator();
-// var path = d3.geoPath().projection(projection);
 
 // set boundaries
 var svg = d3.select(".container-fluid")
@@ -20,8 +20,6 @@ var svg = d3.select(".container-fluid")
         .attr('class', 'map')
         .attr("width", width + (2 * margin.side))
         .attr("height", height + margin.top + margin.bottom);
-
-
 
 //Load in GeoJSON data
 d3.json("./data/chicago_map.geojson").then(function(data) {
@@ -225,12 +223,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
        const yScale = scaleLinear()
          .domain([0, 100])
          .range([height/2, 0])
-      // const areaScale = area()
-      //   .x(d => xScale(new Date(d.year)))
-      //   .y0(yScale(yScale.domain()[0]))
-      //   .y1(d => yScale(d['perc']))
 
-      console.log([d.metric])
       svg
         .selectAll('.grad-line')
         //.append("path")
@@ -243,7 +236,6 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
           .y(function(d) { return yScale(d.perc) }))
         .attr('stroke', 'black')
         .attr('fill', 'none')
-      // svg.selectAll("path").attr("fill", "none");
 
 
     // ---------------- ETHNICITY BAR GRAPH ---------------- //
@@ -300,7 +292,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
   .enter()
   .append("circle")
   // .attr('class', 'datapoint')
-  .attr("class" , function(d){ return d.school_type })
+  .attr("class" , function(d){ return d.school_type.concat(" ", d["2020"]) })
     .attr("cx", function(d){ return projection([d.longitude, d.latitude])[0] })
     .attr("cy", function(d){ return projection([d.longitude, d.latitude])[1] })
     .attr("r", function(d){ return size(d.enrollment) })
