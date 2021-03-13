@@ -7,8 +7,12 @@ p {
   font-size: 20px;
 }
 
-html,
-body {
+h4 {
+  font-weight: 600;
+  margin: 15px 0 5px 0;
+}
+
+html, body {
   background: #F8F9FA;
   font-family: 'calibri';
   height: 100%;
@@ -18,12 +22,13 @@ body {
   display: block;
 }
 
-/* * {
-  border: thin solid black;
-} */
-
 head {
   display: none;
+}
+
+div {
+  display: inline-block;
+  position: relative;
 }
 
 .container-fluid {
@@ -34,14 +39,8 @@ head {
   margin-left: auto;
 }
 
-div {
-  display: inline-block;
-  position: relative;
-}
-
 .main-container {
   max-width: 1040px;
-  /* display: block; */
   display: flex;
   margin-left: auto;
   margin-right: auto;
@@ -50,7 +49,6 @@ div {
 
 svg {
   position: relative;
-
 }
 
 .base-map {
@@ -70,10 +68,7 @@ svg {
   height: 300px;					
   padding: 17px;				
   background: #F8F9FA;	
-  /* border-radius: 8px;			 */
   pointer-events: none;	
-  /* border: solid; */
-  /* border-width: 2px; */
   transform: translate(0, 10%);
 }
 
@@ -85,7 +80,7 @@ svg {
 
 #ethn-bar {
   opacity: 1;
-  fill: steelblue;
+  fill: grey;
   height: 30px;
 }
 
@@ -102,8 +97,6 @@ svg {
 .map {
   display: block;
   height: 850px;
-  /* margin-left: auto; */
-  /* margin-right: auto  */
 }
 
 .datapoint {
@@ -132,4 +125,14 @@ svg {
   flex-wrap: wrap;
   width: 250px;
   padding-top: 300px;
+}
+
+.bottom {
+  flex-direction: column;
+  margin-top: 0px;
+}
+
+.bottom p {
+  font-size: 15px;
+  margin: 0px;
 }

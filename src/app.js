@@ -1,12 +1,7 @@
-import {myExampleUtil} from './utils';
-import {select} from 'd3-selection';
 import * as d3 from 'd3';
 import {scaleLinear, scaleTime} from 'd3-scale'
-import {extent} from 'd3-array';
 import cps from '../data/cps.json';
 import './main.css';
-
-import { area } from 'd3';
 
 var margin = {top: 50, bottom: 30, side: 30};
 var height = 800
@@ -44,7 +39,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
   projection.fitSize([width,height],data); 
 
   var steps = 6
-  //Discrete sequential scale
+  // discrete sequential scale
   var color_threshold = d3.scaleThreshold()
     .domain(d3.range(50, 100, 10) ) // [50, 60, 70, 80, 90, 100]
     .range(d3.schemeRdYlBu[steps]);
@@ -83,12 +78,11 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
     .domain([40, 100])
     .range(colorscale);
 
-  svg
-    .append("text")
-      .attr('x', 10)
-      .attr('y', 738)
-      .text("Graduation Rate")
-      .attr('alignment-baseline', 'middle')
+  svg.append("text")
+    .attr('x', 10)
+    .attr('y', 738)
+    .text("Graduation Rate")
+    .attr('alignment-baseline', 'middle')
 
   drawColorScale();
 
@@ -122,16 +116,14 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
   var xLabel = 110;
   var yCircle = 700;
     
-  svg
-    .append("text")
-      .attr('x', 18)
-      .attr('y', 625)
-      .text("Enrollment")
-      .attr('alignment-baseline', 'middle')
+  svg.append("text")
+    .attr('x', 18)
+    .attr('y', 625)
+    .text("Enrollment")
+    .attr('alignment-baseline', 'middle')
 
   // legend circles
-  svg
-    .selectAll("legend")
+  svg.selectAll("legend")
     .data(valuesToShow)
     .enter()
     .append("circle")
@@ -141,8 +133,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .attr("r", function(d){ return size(d) })
 
   // legend line
-  svg
-    .selectAll("legend")
+  svg.selectAll("legend")
     .data(valuesToShow)
     .enter()
     .append("line")
@@ -154,8 +145,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .style('stroke-dasharray', ('2,2'))
 
   // legend lables
-  svg
-    .selectAll("legend")
+  svg.selectAll("legend")
     .data(valuesToShow)
     .enter()
     .append("text")
@@ -163,9 +153,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .attr('x', xLabel + 13)
       .attr('y', function(d){ return yCircle - size(d) } )
       .text( function(d){ return d } )
-      // .style("font-size", 10)
       .attr('alignment-baseline', 'middle')
-
 
 
   // ---------------- SCHOOL INFO SIDEBAR ---------------- //
@@ -201,8 +189,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
           .scale(d3.scaleLinear()
             .domain([0, 100])
             .range([height/2, 0]))
-          .tickFormat(d => d + "%")
-        );
+          .tickFormat(d => d + "%"));
       // x axis - year
       svg.append("g")
         .attr("transform", "translate(30, " + (height/2 + 50)  +")")
@@ -224,9 +211,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
          .domain([0, 100])
          .range([height/2, 0])
 
-      svg
-        .selectAll('.grad-line')
-        //.append("path")
+      svg.selectAll('.grad-line')
         .data([d.metric.filter(x => x.perc)])
         .join('path')
         .attr("transform", "translate(30, 50)")  
@@ -234,7 +219,8 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
         .attr("d", d3.line()
           .x(function(d) { return xScale(d.year) })
           .y(function(d) { return yScale(d.perc) }))
-        .attr('stroke', 'black')
+        .attr('stroke', 'grey')
+        .attr('stroke-width', 2)
         .attr('fill', 'none')
 
 
@@ -249,6 +235,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       lowerTooltip
         .append("rect")
         .attr('id', 'ethn-bar')
+        .attr("x", 10)
         .attr("y", y)
         .attr("width", 0)
         .transition()
@@ -257,11 +244,11 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       lowerTooltip
         .append("text")
         .text(ethnArray[ethn] + ": " + d[ethn])
-        .attr("x", 10)
+        .attr("x", 20)
         .attr("y", y + 20)
         .transition()
         .duration(500)
-        .attr("x", 10 + 2 * parseInt(d[ethn].replace("%","")));  
+        .attr("x", 20 + 2 * parseInt(d[ethn].replace("%","")));  
       y += 40;
     }
     d3.select(this)
@@ -269,7 +256,6 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .attr("stroke-width", 2)
       .style("opacity", 0.8)
   }
-
 
   var mouseleave = function(d) {
     Tooltip.style("opacity", 0)
@@ -285,13 +271,11 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
       .duration(500)
   }
 
-  // cps dots
-  svg
-  .selectAll("circles")
+  // high school dots
+  svg.selectAll("circles")
   .data(cps)
   .enter()
   .append("circle")
-  // .attr('class', 'datapoint')
   .attr("class" , function(d){ return d.school_type.concat(" ", d["2020"]) })
     .attr("cx", function(d){ return projection([d.longitude, d.latitude])[0] })
     .attr("cy", function(d){ return projection([d.longitude, d.latitude])[1] })
@@ -302,17 +286,15 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
   .on("mouseover", mouseover)
   .on("mouseleave", mouseleave)
 
-  
   function update(){
     // For each check box
     d3.selectAll(".checkbox").each(function(d){
       var value = d3.select(this).property('value')
       var checked = d3.select(this).property('checked')
-
-      if(checked){
+      if (checked) {
         svg.selectAll("."+value).transition().duration(500).style("opacity", 0.7)
         .attr("r", function(d){ return size(d.enrollment) })
-      }else{
+      } else {
         svg.selectAll("."+value).transition().duration(500).style("opacity", 0)
         .attr("r", 0)
       }
@@ -320,10 +302,7 @@ d3.json("./data/chicago_map.geojson").then(function(data) {
   }
 
   d3.selectAll(".checkbox").on("change",update);
-
   update()
-
-
 })
 
 
